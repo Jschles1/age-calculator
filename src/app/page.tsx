@@ -1,113 +1,239 @@
-import Image from 'next/image'
+"use client";
+
+import * as React from "react";
+import * as z from "zod";
+import Image from "next/image";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  DAY_ERROR,
+  MONTH_ERROR,
+  VALID_YEAR_ERROR,
+  EXCEEDED_YEAR_ERROR,
+  REQUIRED_ERROR,
+  INVALID_DATE_ERROR,
+} from "@/lib/constants";
+import {
+  isValuePresent,
+  isValidDay,
+  isValidMonth,
+  isValidYear,
+  isExceededYear,
+  isValidDate,
+} from "@/lib/validation";
+import { Separator } from "@/components/ui/separator";
+import IconArrow from "public/images/icon-arrow.svg";
+
+const formSchema = z.object({
+  day: z
+    .string()
+    .refine(isValuePresent, { message: REQUIRED_ERROR })
+    .refine(isValidDay, { message: DAY_ERROR }),
+  month: z
+    .string()
+    .refine(isValuePresent, { message: REQUIRED_ERROR })
+    .refine(isValidMonth, { message: MONTH_ERROR }),
+  year: z
+    .string()
+    .refine(isValuePresent, { message: REQUIRED_ERROR })
+    .refine(isValidYear, { message: VALID_YEAR_ERROR })
+    .refine(isExceededYear, { message: EXCEEDED_YEAR_ERROR }),
+});
+
+type FormSchema = z.infer<typeof formSchema>;
+type AgeResult = {
+  years: number | "- -";
+  months: number | "- -";
+  days: number | "- -";
+};
+
+function subtractDateFromCurrent(
+  month: string,
+  day: string,
+  year: string
+): AgeResult {
+  // Create a new date object for the current date
+  const currentDate = new Date();
+
+  // Create a new date object from the provided date
+  const providedDate = new Date(
+    parseInt(year),
+    parseInt(month) - 1,
+    parseInt(day)
+  );
+
+  let yearsDifference = currentDate.getFullYear() - providedDate.getFullYear();
+  let monthsDifference = currentDate.getMonth() - providedDate.getMonth();
+  let daysDifference = currentDate.getDate() - providedDate.getDate();
+
+  // Now we need to correct for the cases where subtraction might result in negative values
+  if (monthsDifference < 0 || (monthsDifference === 0 && daysDifference < 0)) {
+    yearsDifference--;
+    monthsDifference += 12;
+  }
+
+  if (daysDifference < 0) {
+    const daysInLastFullMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      0
+    ).getDate();
+    daysDifference += daysInLastFullMonth;
+    monthsDifference--;
+
+    if (monthsDifference < 0) {
+      monthsDifference += 12;
+      yearsDifference--;
+    }
+  }
+
+  return {
+    days: daysDifference,
+    months: monthsDifference,
+    years: yearsDifference,
+  };
+}
 
 export default function Home() {
+  const [result, setResult] = React.useState<AgeResult>({
+    years: "- -",
+    months: "- -",
+    days: "- -",
+  });
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      day: "",
+      month: "",
+      year: "",
+    },
+  });
+
+  function onSubmit(values: FormSchema) {
+    const { day, month, year } = values;
+    const dateObj = `${year}-${month}-${day}`;
+    if (isValidDate(dateObj)) {
+      const ageResult = subtractDateFromCurrent(month, day, year);
+      setResult(ageResult);
+    } else {
+      form.setError("day", { message: INVALID_DATE_ERROR });
+    }
+  }
+
+  const hasErrors = Object.keys(form.formState.errors).length > 0;
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main className="px-4 pt-[5.5rem] pb-[14.875rem] mx-auto max-w-[1440px] lg:px-[18.75rem] lg:pt-[10.688rem] lg:pb-[6.813rem]">
+      <div className="bg-white px-6 py-12 rounded-3xl rounded-br-[6.25rem] lg:p-14">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="flex items-center gap-4 lg:gap-8">
+              <FormField
+                control={form.control}
+                name="day"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Day</FormLabel>
+                    <FormControl className="mb-2">
+                      <Input
+                        placeholder="DD"
+                        maxLength={2}
+                        {...field}
+                        error={form.formState.errors.day?.message}
+                      />
+                    </FormControl>
+                    {hasErrors && (
+                      <div className="h-[21px]">
+                        <FormMessage />
+                      </div>
+                    )}
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="month"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Month</FormLabel>
+                    <FormControl className="mb-2">
+                      <Input
+                        placeholder="MM"
+                        maxLength={2}
+                        {...field}
+                        error={form.formState.errors.month?.message}
+                      />
+                    </FormControl>
+                    {hasErrors && (
+                      <div className="h-[21px]">
+                        <FormMessage />
+                      </div>
+                    )}
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="year"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Year</FormLabel>
+                    <FormControl className="mb-2">
+                      <Input
+                        placeholder="YYYY"
+                        maxLength={4}
+                        {...field}
+                        error={form.formState.errors.year?.message}
+                      />
+                    </FormControl>
+                    {hasErrors && (
+                      <div className="h-[21px]">
+                        <FormMessage />
+                      </div>
+                    )}
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="relative my-8 py-8 lg:my-0 lg:py-12">
+              <Separator className="-z-1" />
+              <button
+                type="submit"
+                className="absolute mx-auto p-4 lg:p-0 left-0 right-0 bg-fuschia hover:bg-black focus:bg-black w-16 h-16 lg:w-[96px] lg:h-[96px] rounded-full flex items-center justify-center top-0 lg:left-auto lg:mx-0"
+              >
+                <Image src={IconArrow} alt="Down Arrow Icon" />
+              </button>
+            </div>
+          </form>
+        </Form>
+
+        <div>
+          <p className="italic font-extrabold tracking-tighter text-[3.5rem] leading-[110%] lg:text-[6.5rem]">
+            <span className="text-fuschia">{result.years}</span>{" "}
+            {result.years === 1 ? "year" : "years"}
+          </p>
+          <p className="italic font-extrabold tracking-tighter text-[3.5rem] leading-[110%] lg:text-[6.5rem]">
+            <span className="text-fuschia">{result.months}</span>{" "}
+            {result.months === 1 ? "month" : "months"}
+          </p>
+          <p className="italic font-extrabold tracking-tighter text-[3.5rem] leading-[110%] lg:text-[6.5rem]">
+            <span className="text-fuschia">{result.days}</span>{" "}
+            {result.days === 1 ? "day" : "days"}
+          </p>
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
     </main>
-  )
+  );
 }
