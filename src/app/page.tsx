@@ -132,111 +132,109 @@ export default function Home() {
   const hasErrors = Object.keys(form.formState.errors).length > 0;
 
   return (
-    <>
+    <main className="px-4 pt-[5.5rem] pb-[14.875rem] mx-auto max-w-[1440px] lg:px-[18.75rem] lg:pt-[10.688rem] lg:pb-[6.813rem]">
       <h1 className="hidden">Age Calculator</h1>
-      <main className="px-4 pt-[5.5rem] pb-[14.875rem] mx-auto max-w-[1440px] lg:px-[18.75rem] lg:pt-[10.688rem] lg:pb-[6.813rem]">
-        <div className="bg-white px-6 py-12 rounded-3xl rounded-br-[6.25rem] lg:p-14">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="flex items-center gap-4 lg:gap-8">
-                <FormField
-                  control={form.control}
-                  name="day"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Day</FormLabel>
-                      <FormControl className="mb-2">
-                        <Input
-                          placeholder="DD"
-                          maxLength={2}
-                          {...field}
-                          error={form.formState.errors.day?.message}
-                        />
-                      </FormControl>
-                      {hasErrors && (
-                        <div className="h-[21px]">
-                          <FormMessage />
-                        </div>
-                      )}
-                    </FormItem>
-                  )}
-                />
+      <div className="bg-white px-6 py-12 rounded-3xl rounded-br-[6.25rem] lg:p-14">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="flex items-center gap-4 lg:gap-8">
+              <FormField
+                control={form.control}
+                name="day"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Day</FormLabel>
+                    <FormControl className="mb-2">
+                      <Input
+                        placeholder="DD"
+                        maxLength={2}
+                        {...field}
+                        error={form.formState.errors.day?.message}
+                      />
+                    </FormControl>
+                    {hasErrors && (
+                      <div className="h-[21px]">
+                        <FormMessage />
+                      </div>
+                    )}
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="month"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Month</FormLabel>
-                      <FormControl className="mb-2">
-                        <Input
-                          placeholder="MM"
-                          maxLength={2}
-                          {...field}
-                          error={form.formState.errors.month?.message}
-                        />
-                      </FormControl>
-                      {hasErrors && (
-                        <div className="h-[21px]">
-                          <FormMessage />
-                        </div>
-                      )}
-                    </FormItem>
-                  )}
-                />
+              <FormField
+                control={form.control}
+                name="month"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Month</FormLabel>
+                    <FormControl className="mb-2">
+                      <Input
+                        placeholder="MM"
+                        maxLength={2}
+                        {...field}
+                        error={form.formState.errors.month?.message}
+                      />
+                    </FormControl>
+                    {hasErrors && (
+                      <div className="h-[21px]">
+                        <FormMessage />
+                      </div>
+                    )}
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="year"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Year</FormLabel>
-                      <FormControl className="mb-2">
-                        <Input
-                          placeholder="YYYY"
-                          maxLength={4}
-                          {...field}
-                          error={form.formState.errors.year?.message}
-                        />
-                      </FormControl>
-                      {hasErrors && (
-                        <div className="h-[21px]">
-                          <FormMessage />
-                        </div>
-                      )}
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="year"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Year</FormLabel>
+                    <FormControl className="mb-2">
+                      <Input
+                        placeholder="YYYY"
+                        maxLength={4}
+                        {...field}
+                        error={form.formState.errors.year?.message}
+                      />
+                    </FormControl>
+                    {hasErrors && (
+                      <div className="h-[21px]">
+                        <FormMessage />
+                      </div>
+                    )}
+                  </FormItem>
+                )}
+              />
+            </div>
 
-              <div className="relative my-8 py-8 lg:my-0 lg:py-12">
-                <Separator className="-z-1" />
-                <button
-                  type="submit"
-                  className="absolute mx-auto p-4 lg:p-0 left-0 right-0 bg-fuschia hover:bg-black focus:bg-black w-16 h-16 lg:w-[96px] lg:h-[96px] rounded-full flex items-center justify-center top-0 lg:left-auto lg:mx-0"
-                >
-                  <Image src={IconArrow} alt="Down Arrow Icon" />
-                </button>
-              </div>
-            </form>
-          </Form>
+            <div className="relative my-8 py-8 lg:my-0 lg:py-12">
+              <Separator className="-z-1" />
+              <button
+                type="submit"
+                className="absolute mx-auto p-4 lg:p-0 left-0 right-0 bg-fuschia hover:bg-black focus:bg-black w-16 h-16 lg:w-[96px] lg:h-[96px] rounded-full flex items-center justify-center top-0 lg:left-auto lg:mx-0"
+              >
+                <Image src={IconArrow} alt="Down Arrow Icon" />
+              </button>
+            </div>
+          </form>
+        </Form>
 
-          <div>
-            <p className="italic font-extrabold tracking-tighter text-[3.5rem] leading-[110%] lg:text-[6.5rem]">
-              <span className="text-fuschia">{result.years}</span>{" "}
-              {result.years === 1 ? "year" : "years"}
-            </p>
-            <p className="italic font-extrabold tracking-tighter text-[3.5rem] leading-[110%] lg:text-[6.5rem]">
-              <span className="text-fuschia">{result.months}</span>{" "}
-              {result.months === 1 ? "month" : "months"}
-            </p>
-            <p className="italic font-extrabold tracking-tighter text-[3.5rem] leading-[110%] lg:text-[6.5rem]">
-              <span className="text-fuschia">{result.days}</span>{" "}
-              {result.days === 1 ? "day" : "days"}
-            </p>
-          </div>
+        <div>
+          <p className="italic font-extrabold tracking-tighter text-[3.5rem] leading-[110%] lg:text-[6.5rem]">
+            <span className="text-fuschia">{result.years}</span>{" "}
+            {result.years === 1 ? "year" : "years"}
+          </p>
+          <p className="italic font-extrabold tracking-tighter text-[3.5rem] leading-[110%] lg:text-[6.5rem]">
+            <span className="text-fuschia">{result.months}</span>{" "}
+            {result.months === 1 ? "month" : "months"}
+          </p>
+          <p className="italic font-extrabold tracking-tighter text-[3.5rem] leading-[110%] lg:text-[6.5rem]">
+            <span className="text-fuschia">{result.days}</span>{" "}
+            {result.days === 1 ? "day" : "days"}
+          </p>
         </div>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }
