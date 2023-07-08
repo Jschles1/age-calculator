@@ -133,7 +133,6 @@ export default function Home() {
 
   return (
     <main className="px-4 pt-[5.5rem] pb-[14.875rem] mx-auto max-w-[1440px] lg:px-[18.75rem] lg:pt-[10.688rem] lg:pb-[6.813rem]">
-      <h1 className="hidden">Age Calculator</h1>
       <div className="bg-white px-6 py-12 rounded-3xl rounded-br-[6.25rem] lg:p-14">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
