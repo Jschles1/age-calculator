@@ -133,7 +133,7 @@ export default function Home() {
 
   return (
     <main className="px-4 pt-[5.5rem] pb-[14.875rem] mx-auto max-w-[1440px] lg:px-[18.75rem] lg:pt-[10.688rem] lg:pb-[6.813rem]">
-      <div className="bg-white px-6 py-12 rounded-3xl rounded-br-[6.25rem] lg:p-14">
+      <div className="bg-white px-6 py-12 rounded-3xl rounded-br-[6.25rem] lg:p-14 lg:rounded-br-[12.5rem]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="flex items-center gap-4 lg:gap-8">
